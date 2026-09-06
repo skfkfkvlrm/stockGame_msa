@@ -133,18 +133,48 @@ public class StockDetailServiceImpl implements StockDetailService {
         double kosdaqBase = 845.0;
 
         double overallChangeRate = totalPrev > 0 ? ((totalNow - totalPrev) / totalPrev) : 0;
+        double kospiPrev = 2737.79;
+        double kosdaqPrev = 848.32;
 
         double kospiValue = Math.round((kospiBase * (1 + overallChangeRate)) * 100.0) / 100.0;
-        double kospiChange = Math.round((kospiValue - kospiBase) * 100.0) / 100.0;
-        double kospiRate = Math.round((overallChangeRate * 100.0) * 100.0) / 100.0;
+        double kospiChange = Math.round((kospiValue - kospiPrev) * 100.0) / 100.0;
+        double kospiRate = Math.round(((kospiValue - kospiPrev) / kospiPrev * 100.0) * 100.0) / 100.0;
 
         double kosdaqValue = Math.round((kosdaqBase * (1 + (overallChangeRate * 0.8))) * 100.0) / 100.0;
-        double kosdaqChange = Math.round((kosdaqValue - kosdaqBase) * 100.0) / 100.0;
-        double kosdaqRate = Math.round(((overallChangeRate * 0.8) * 100.0) * 100.0) / 100.0;
+        double kosdaqChange = Math.round((kosdaqValue - kosdaqPrev) * 100.0) / 100.0;
+        double kosdaqRate = Math.round(((kosdaqValue - kosdaqPrev) / kosdaqPrev * 100.0) * 100.0) / 100.0;
 
         return List.of(
-            MarketIndexResponse.builder().name("KOSPI").value(kospiValue).change(kospiChange).changeRate(kospiRate).build(),
-            MarketIndexResponse.builder().name("KOSDAQ").value(kosdaqValue).change(kosdaqChange).changeRate(kosdaqRate).build()
+            MarketIndexResponse.builder()
+                .name("KOSPI")
+                .value(kospiValue)
+                .change(kospiChange)
+                .changeRate(kospiRate)
+                .prevClose(kospiPrev)
+                .openPrice(Math.round((kospiPrev + 2.3) * 100.0) / 100.0)
+                .highPrice(Math.round((Math.max(kospiValue, kospiPrev) + 8.5) * 100.0) / 100.0)
+                .lowPrice(Math.round((Math.min(kospiValue, kospiPrev) - 6.2) * 100.0) / 100.0)
+                .high52w(2890.50)
+                .low52w(2273.97)
+                .volume(458290000L)
+                .tradingValue(9820300000000L)
+                .chartHistory(List.of(2720.5, 2735.2, 2741.0, 2738.4, 2745.8, 2737.79, kospiValue))
+                .build(),
+            MarketIndexResponse.builder()
+                .name("KOSDAQ")
+                .value(kosdaqValue)
+                .change(kosdaqChange)
+                .changeRate(kosdaqRate)
+                .prevClose(kosdaqPrev)
+                .openPrice(Math.round((kosdaqPrev - 1.1) * 100.0) / 100.0)
+                .highPrice(Math.round((Math.max(kosdaqValue, kosdaqPrev) + 4.2) * 100.0) / 100.0)
+                .lowPrice(Math.round((Math.min(kosdaqValue, kosdaqPrev) - 5.8) * 100.0) / 100.0)
+                .high52w(920.10)
+                .low52w(735.40)
+                .volume(892400000L)
+                .tradingValue(7450200000000L)
+                .chartHistory(List.of(855.2, 852.0, 849.5, 847.2, 849.8, 848.32, kosdaqValue))
+                .build()
         );
     }
 }

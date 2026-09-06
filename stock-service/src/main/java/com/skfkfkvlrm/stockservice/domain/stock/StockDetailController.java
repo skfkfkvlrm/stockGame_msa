@@ -20,6 +20,7 @@ public class StockDetailController {
     private final StockDetailService stockDetailService;
     private final StockPriceHistoryRepository stockPriceHistoryRepository;
     private final StockListRepository stockListRepository;
+    private final com.skfkfkvlrm.stockservice.domain.admin.MarketSettingsRepository marketSettingsRepository;
 
     @GetMapping("")
     public ApiResponse<List<StockDetailResponse>> getStockList() {
@@ -92,5 +93,31 @@ public class StockDetailController {
     public ApiResponse<Boolean> deleteStockAdmin(@PathVariable("stockId") int stockId) {
         stockListRepository.deleteStock(stockId);
         return ApiResponse.success("주식 종목이 상장폐지되었습니다.", true);
+    }
+
+    @GetMapping("/admin/market/status")
+    public ApiResponse<Map<String, Object>> getMarketStatus() {
+        com.skfkfkvlrm.stockservice.domain.admin.MarketSettings settings = marketSettingsRepository.findById(1).orElse(null);
+        Map<String, Object> data = new HashMap<>();
+        data.put("marketOpen", settings == null || settings.isMarketOpen());
+        return ApiResponse.success("Market status", data);
+    }
+
+    @PostMapping("/admin/market/toggle")
+    public ApiResponse<Map<String, Object>> toggleMarketStatus() {
+        com.skfkfkvlrm.stockservice.domain.admin.MarketSettings settings = marketSettingsRepository.findById(1).orElse(null);
+        if (settings == null) {
+            settings = com.skfkfkvlrm.stockservice.domain.admin.MarketSettings.builder()
+                    .id(1)
+                    .isMarketOpen(false)
+                    .build();
+        } else {
+            settings.setMarketOpen(!settings.isMarketOpen());
+        }
+        marketSettingsRepository.save(settings);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("marketOpen", settings.isMarketOpen());
+        return ApiResponse.success("Market status toggled", data);
     }
 }
